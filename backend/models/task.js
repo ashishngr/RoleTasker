@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { type } = require("os");
 const { Schema } = mongoose;
 
 const TaskSchema = new Schema(
@@ -66,6 +65,16 @@ const TaskSchema = new Schema(
     isArchived: {
       type: Boolean,
       default: false,
+    },
+    deadline: {
+      type: Date,
+      required: false, // Optional for flexibility
+      validate: {
+        validator: function (date) {
+          return date instanceof Date && !isNaN(date.getTime());
+        },
+        message: "Invalid date format for deadline.",
+      },
     },
   },
   {
