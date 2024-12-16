@@ -11,6 +11,7 @@ type AssigneeStackParamList = {
   AssigneeTasks: undefined;
   AssigneeNotifications: undefined;
   AssigneeProfile: undefined;
+  AssigneeAnalytics: undefined;
   SignIn: undefined;
 };
 
@@ -68,6 +69,15 @@ const AssigneeNavbar: React.FC = () => {
             name="account"
             size={28}
             style={[styles.icon, activeTab === 'AssigneeProfile' && styles.activeIcon]}
+          />
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => handleNavigate('AssigneeAnalytics')} style={styles.navItem}>
+        <View style={[styles.iconWrapper, activeTab === 'AssigneeAnalytics' && styles.activeIconWrapper]}>
+          <MaterialCommunityIcons
+            name="chart-bar"
+            size={28}
+            style={[styles.icon, activeTab === 'AssigneeAnalytics' && styles.activeIcon]}
           />
         </View>
       </TouchableOpacity>

@@ -4,14 +4,14 @@ import { Ionicons } from "@expo/vector-icons";
 import TaskList from '../../components/TaskList'; 
 import CreateTaskModal from '../../components/CreateTaskModal'; 
 import { useCreateTask } from '../../api/apiMutations';
-import { useGetAllTasks } from '../../api/apiMutations';
+// import { useGetAllTasks } from '../../api/apiMutations';
 import Toast from 'react-native-toast-message';
 
 type Task = {
   id: string;
   title: string;
   owner: string;
-  assignees: string;
+  assignees: string[];
   priority: "High" | "Medium" | "Low";
   status: "Done" | "In Progress" | "Backlog" | "Archived";
 };
@@ -21,39 +21,6 @@ const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isModalVisible, setModalVisible] = useState(false); 
   const { mutate: createTask } = useCreateTask();
-
-  const {mutate : fetchAllTasks} = useGetAllTasks();
-  useEffect(() => {
-    fetchAllTasks(undefined, {
-      onSuccess: (data) => {
-        console.log("Data in useEffect", data)
-        const fetchedTasks = data?.tasks.map((task) => ({
-          id: task._id,
-          title: task.title,
-          ownerName: task.ownerName,
-          assignees: task.assignees.map((assignee) => assignee.email),
-          priority: task.priority,
-          status: task.status,
-          description : task.description
-        }));
-        console.log("Again fetched tasks", fetchedTasks)
-        setTasks(fetchedTasks); 
-      },
-      onError: (error) => {
-        console.error("Error fetching tasks:", error);
-        Toast.show({
-          type: 'error',
-          text1: 'Failed to Load Tasks',
-          text2: 'An error occurred while fetching tasks.',
-        });
-      },
-    });
-  }, [fetchAllTasks]);
-
-  useEffect(()=>{
-    console.log("List of tasks", tasks)
-  },[])
-
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -68,14 +35,16 @@ const Tasks: React.FC = () => {
   };
 
 
-  const handleCreateTask = (task: { title: string; description: string; assignees: string; priority: string; status: string }) => {
+  const handleCreateTask = (task: { title: string; description: string; assignees: string[]; priority: string; status: string; deadline : string }) => {
     const taskPayload = {
       title: task.title,
       description: task.description,
       assignees: task.assignees, // Send only email of the selected assignee
       priority: task.priority,
-      status: task.status,
+      status: task.status, 
+      deadline : task.deadline
     };
+    console.log("Task Payload --------+++++++++----------:::::::---------", taskPayload)
 
     createTask(taskPayload, {
       onSuccess: (newTask) => {
@@ -113,17 +82,6 @@ const Tasks: React.FC = () => {
         onClose={handleCloseModal}
         onCreateTask={handleCreateTask}
       />
-
-      {/* Search Input */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color="#888" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search tasks..."
-          value={searchQuery}
-          onChangeText={handleSearch}
-        />
-      </View>
 
       {/* Task List */}
       <TaskList />

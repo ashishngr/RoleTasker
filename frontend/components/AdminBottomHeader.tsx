@@ -1,7 +1,7 @@
 // components/AdminNavbar.tsx
 import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, useNavigationState } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import StorageUtils from '../utils/storage_utils';
@@ -18,10 +18,14 @@ type AdminNavbarProps = StackNavigationProp<AdminStackParamList>;
 
 const AdminNavbar: React.FC = () => {
   const navigation = useNavigation<AdminNavbarProps>();
-  const [activeTab, setActiveTab] = useState<string>('AdminHome');
+  const route = useRoute();
+  // const [activeTab, setActiveTab] = useState<string>('AdminHome'); 
+  const currentRouteName = useNavigationState((state) => state.routes[state.index].name);
+
+
 
   const handleNavigate = (screenName: string) => {
-    setActiveTab(screenName);
+    // setActiveTab(screenName);
     navigation.navigate(screenName as keyof AdminStackParamList);
   };
 
@@ -30,44 +34,48 @@ const AdminNavbar: React.FC = () => {
     navigation.navigate('SignIn');
   };
 
+  const activeTab = (screenName: string) => currentRouteName === screenName;
+
+
+
   return (
     <View style={styles.navContainer}>
       <TouchableOpacity onPress={() => handleNavigate('AdminHome')} style={styles.navItem}>
-        <View style={[styles.iconWrapper, activeTab === 'AdminHome' && styles.activeIconWrapper]}>
+        <View style={[styles.iconWrapper, activeTab('AdminHome')  && styles.activeIconWrapper]}>
           <MaterialCommunityIcons
             name="home"
             size={28}
-            style={[styles.icon, activeTab === 'AdminHome' && styles.activeIcon]}
+            style={[styles.icon, activeTab('AdminHome') && styles.activeIcon]}
           />
         </View>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => handleNavigate('AdminTasks')} style={styles.navItem}>
-        <View style={[styles.iconWrapper, activeTab === 'AdminTasks' && styles.activeIconWrapper]}>
+        <View style={[styles.iconWrapper, activeTab('AdminTasks') && styles.activeIconWrapper]}>
           <MaterialCommunityIcons
             name="clipboard-text"
             size={28}
-            style={[styles.icon, activeTab === 'AdminTasks' && styles.activeIcon]}
+            style={[styles.icon, activeTab('AdminTasks') && styles.activeIcon]}
           />
         </View>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => handleNavigate('AdminNotifications')} style={styles.navItem}>
-        <View style={[styles.iconWrapper, activeTab === 'AdminNotifications' && styles.activeIconWrapper]}>
+        <View style={[styles.iconWrapper, activeTab('AdminTasks') && styles.activeIconWrapper]}>
           <MaterialCommunityIcons
             name="bell"
             size={28}
-            style={[styles.icon, activeTab === 'AdminNotifications' && styles.activeIcon]}
+            style={[styles.icon, activeTab('AdminTasks') && styles.activeIcon]}
           />
         </View>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => handleNavigate('AdminProfile')} style={styles.navItem}>
-        <View style={[styles.iconWrapper, activeTab === 'AdminProfile' && styles.activeIconWrapper]}>
+        <View style={[styles.iconWrapper, activeTab('AdminNotifications') && styles.activeIconWrapper]}>
           <MaterialCommunityIcons
             name="account"
             size={28}
-            style={[styles.icon, activeTab === 'AdminProfile' && styles.activeIcon]}
+            style={[styles.icon, activeTab('AdminNotifications') && styles.activeIcon]}
           />
         </View>
       </TouchableOpacity>

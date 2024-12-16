@@ -4,7 +4,8 @@ import AssignerHomeScreen from "../screens/Assigner/AssignerHomeScreen";
 import Profile from "../screens/Assigner/Profile";
 import Notifications from "../screens/Assigner/Notifications";
 import Tasks from "../screens/Assigner/Tasks";
-import AssigneeNavbar from "../components/AssigneeBottomHeader";
+import AssigneeNavbar from "../components/AssigneeBottomHeader"; 
+import Analytics from "../screens/Assigner/Analytics";
 
 const AssigneeStack = createStackNavigator();
 
@@ -15,7 +16,8 @@ const AssigneeRoutes = () => {
                 <AssigneeStack.Screen name="AssigneeHome" component={AssignerHomeScreen} options={{ title: 'Assigner Home' }} />
                 <AssigneeStack.Screen name="AssigneeTasks" component={Tasks} options={{ title: 'Tasks' }} />
                 <AssigneeStack.Screen name="AssigneeNotifications" component={Notifications} options={{ title: 'Notifications' }} />
-                <AssigneeStack.Screen name="AssigneeProfile" component={Profile} options={{ title: 'Profile' }} />
+                <AssigneeStack.Screen name="AssigneeProfile" component={Profile} options={{ title: 'Profile' }} /> 
+                <AssigneeStack.Screen name="AssigneeAnalytics" component={Analytics} options={{title : 'Analytics'}}/>
             </AssigneeStack.Navigator>
             <AssigneeNavbar />
         </>

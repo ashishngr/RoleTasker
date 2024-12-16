@@ -21,7 +21,7 @@ const WorkerNavbar:React.FC = () => {
   
     const handleNavigate = (screenName: string) => {
       setActiveTab(screenName);
-      navigation.navigate(screenName as keyof WorkerStackParamList);
+      navigation.navigate('WorkerRoutes', {screen : screenName});
     };
   
     const handleLogout = async () => {
@@ -59,6 +59,16 @@ const WorkerNavbar:React.FC = () => {
             />
           </View>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleNavigate('WorkerAnalytics')} style={styles.navItem}>
+        <View style={[styles.iconWrapper, activeTab === 'WorkerAnalytics' && styles.activeIconWrapper]}>
+          <MaterialCommunityIcons
+            name="chart-bar"
+            size={28}
+            style={[styles.icon, activeTab === 'WorkerAnalytics' && styles.activeIcon]}
+          />
+        </View>
+      </TouchableOpacity>
+
   
         <TouchableOpacity onPress={() => handleNavigate('WorkerProfile')} style={styles.navItem}>
           <View style={[styles.iconWrapper, activeTab === 'WorkerProfile' && styles.activeIconWrapper]}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 import { signInApi, SignInPayload } from '../api/api';
@@ -13,11 +13,51 @@ import StorageUtils from '../utils/storage_utils';
 
 interface SignInProps {
     navigation: any;
-}
+} 
+
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+    const [password, setPassword] = useState<string>(''); 
+    useEffect(()=>{
+        const checkTokenAndNavigate = async () => {
+            try {
+                const token = await StorageUtils.getAPIToken();
+                const userProfile = await StorageUtils.getUserProfile();
+    
+                if (token && userProfile?.roles && Array.isArray(userProfile.roles)) {
+                    const role = userProfile.roles[0];
+    
+                    // Navigate to the appropriate screen based on role
+                    switch (role) {
+                        case 'Admin':
+                            navigation.navigate('AdminRoutes');
+                            break;
+                        case 'Assigner':
+                            navigation.navigate('AssigneeRoutes');
+                            break;
+                        case 'Worker':
+                            navigation.navigate('WorkerRoutes');
+                            break;
+                        default:
+                            console.warn('Unknown role:', role);
+                            Toast.show({
+                                type: 'error',
+                                text1: 'Role Error',
+                                text2: 'Unable to determine user role.',
+                            });
+                            break;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking token and role:', error);
+            }
+        };
+    
+        checkTokenAndNavigate();
+    },[navigation])
+
+
 
     const mutation = useMutation({
         mutationFn: (payload: SignInPayload) => {
@@ -28,16 +68,20 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             console.log('Sign in successful:', data);
 
             const { userToken, role, user } = data;
-            console.log("User Token", userToken);
-            console.log("user------>", user)
-            console.log("user------>", role)
+            console.log("User Token>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", userToken);
+            console.log("user user---------------------------------------------|||||||||||||||||||>", user)
+            console.log("user role||||||||||||||||||||||||||||||||||||||||||||||------------------>", role) 
+            
+
 
             try {
                 // Storing token and user profile in local storage
                 await StorageUtils.setAPIToken(userToken);
                 await StorageUtils.setUserProfile(user);
 
-                console.log('Token and user profile stored successfully');
+                console.log('Token and user profile stored successfully'); 
+
+                console.log("User stored in local storage", )
             } catch (error) {
                 console.error('Error storing data in AsyncStorage:', error);
             }
@@ -47,7 +91,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                 text1: 'Sign In Successful!',
                 text2: 'Welcome back!',
             });
-            // Dynamically navigate to the route associated with the role
+            // Dynamically navigate to the route associated with the role 
+
+
+            
 
             if (Array.isArray(role) && role.length > 0) {
                 switch (role[0]) {

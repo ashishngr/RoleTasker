@@ -4,6 +4,7 @@ import WorkerHomeScreen from "../screens/worker/WorkerHomeScreen";
 import Profile from "../screens/worker/Profile";
 import Notifications from "../screens/worker/Notifications";
 import Tasks from "../screens/worker/Tasks";
+import Analytics from "../screens/worker/Analytics";
 
 import WorkerNavbar from "../components/WorkerBottomHeader";
 
@@ -18,6 +19,7 @@ const WorkerRoutes = () => {
                 <WorkerStack.Screen name="WorkerTasks" component={Tasks} options={{ title: 'Tasks' }} />
                 <WorkerStack.Screen name="WorkerNotifications" component={Notifications} options={{ title: 'Notifications' }} />
                 <WorkerStack.Screen name="WorkerProfile" component={Profile} options={{ title: 'Profile' }} />
+                <WorkerStack.Screen name="WorkerAnalytics" component={Analytics} options={{title : 'Analytics'}}/>
             </WorkerStack.Navigator>
             <WorkerNavbar />
         </>

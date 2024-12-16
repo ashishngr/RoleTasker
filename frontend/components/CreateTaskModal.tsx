@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useGetAllWorkers } from "../api/apiMutations";
+import DateTimePicker from "@react-native-community/datetimepicker"; 
+
 
 type CreateTaskModalProps = {
   visible: boolean;
@@ -9,9 +11,10 @@ type CreateTaskModalProps = {
   onCreateTask: (task: {
     title: string;
     description: string;
-    assignees: string;
+    assignees: string[];
     priority: string;
     status: string;
+    deadline : string;
   }) => void;
 };
 type Worker = {
@@ -24,12 +27,14 @@ type Worker = {
 const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onCreateTask }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assignees, setAssignees] = useState("");
+  const [assignees, setAssignees] = useState<string[]>([]);
   const [priority, setPriority] = useState("Select Priority");
   const [status, setStatus] = useState("Select Status");
-  const [workerList, setWorkerList] = useState<Worker[]>([]); 
+  const [workerList, setWorkerList] = useState<Worker[]>([]);
+  const [deadline, setDeadline] = useState<Date | undefined>(undefined);  
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const { mutate: fetchWorkers, data: workersData, isLoading } = useGetAllWorkers(); 
+  const { mutate: fetchWorkers, data: workersData, isLoading } = useGetAllWorkers();
 
   useEffect(() => {
     if (visible) {
@@ -39,18 +44,28 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
 
   useEffect(() => {
     if (workersData && Array.isArray(workersData.data)) {
-      setWorkerList(workersData.data);  
+      setWorkerList(workersData.data);
     }
   }, [workersData]);
 
+  const toggleAssignee = (email: string) => {
+    setAssignees((prevAssignees) =>
+      prevAssignees.includes(email)
+        ? prevAssignees.filter((assignee) => assignee !== email) // Deselect if already selected
+        : [...prevAssignees, email] // Add to selected if not already present
+    );
+  };
+
   const handleCreateTask = () => {
-    onCreateTask({ title, description, assignees, priority, status });
+    const formattedDeadline = deadline ? deadline.toISOString().split("T")[0] : "";
+    onCreateTask({ title, description, assignees, priority, status, deadline : formattedDeadline });
     onClose();
     setTitle("");
     setDescription("");
-    setAssignees("Select Assignee");
+    setAssignees([""]);
     setPriority("Select Priority");
     setStatus("Select Status");
+    setDeadline(undefined);
   };
 
   return (
@@ -73,23 +88,49 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
             onChangeText={setDescription}
             multiline
           />
+          {/* Deadline Input */} 
+
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text>{deadline ? deadline.toDateString() : "Select Deadline"}</Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={deadline || new Date()}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(false);
+                if (selectedDate) setDeadline(selectedDate);
+              }}
+            />
+          )}
+          
 
           {/* Assignees Dropdown */}
           <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={assignees}
-              onValueChange={(itemValue) => setAssignees(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Select Assignee" value="" />
-              {!isLoading && workerList.map((worker) => (
-                <Picker.Item
-                  key={worker._id}
-                  label={`${worker.firstName} ${worker.lastName} - ${worker.email}`}
-                  value={worker.email}
-                />
-              ))}
-            </Picker>
+            <Text style={styles.label}>Assignees:</Text>
+            {workerList.map((worker) => (
+              <TouchableOpacity
+                key={worker._id}
+                style={[
+                  styles.assigneeChip,
+                  assignees.includes(worker.email) && styles.selectedAssigneeChip,
+                ]}
+                onPress={() => toggleAssignee(worker.email)}
+              >
+                <Text
+                  style={[
+                    styles.assigneeText,
+                    assignees.includes(worker.email) && styles.selectedAssigneeText,
+                  ]}
+                >
+                  {`${worker.firstName} ${worker.lastName}`}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           {/* Priority Dropdown */}
@@ -132,6 +173,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
           </View>
         </View>
       </View>
+
     </Modal>
   );
 };
@@ -169,6 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
     overflow: "hidden",
+    padding: 10,
   },
   picker: {
     height: 50,
@@ -201,6 +244,42 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: "#FFF",
     textAlign: "center",
+    fontWeight: "bold",
+  },
+  assigneeChip: {
+    backgroundColor: "#F0F0F0",
+    padding: 10,
+    borderRadius: 20,
+    marginVertical: 5,
+  },
+  selectedAssigneeChip: {
+    backgroundColor: "#4B9CD3",
+  },
+  assigneeText: {
+    color: "#000",
+  },
+  selectedAssigneeText: {
+    color: "#FFF",
+  },
+  selectedAssigneesContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  selectedChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#4B9CD3",
+    padding: 5,
+    borderRadius: 20,
+    margin: 5,
+  },
+  selectedChipText: {
+    color: "#FFF",
+    marginRight: 5,
+  },
+  removeChipText: {
+    color: "#FFF",
     fontWeight: "bold",
   },
 });
