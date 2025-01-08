@@ -41,7 +41,6 @@ const TaskList: React.FC = () => {
 
     const handleDeleteTask = (taskId: string) => {
         // Handle task deletion here (e.g., API call to delete task)
-        console.log("Delete task", taskId);
     };
 
 
@@ -80,7 +79,6 @@ const TaskList: React.FC = () => {
     }, [sortBy, priorityFilter, statusFilter, dayFilter]);
 
     const handleSearch = async (search: string) => {
-        console.log("&&&&&&&&&&{{{{{{{********************************************************}}}}}}}}}}}}}}", search)
         setSearchText(search);
         await fetchTasks(searchText);
     };

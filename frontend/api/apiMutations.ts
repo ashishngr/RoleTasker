@@ -6,7 +6,10 @@ import { addComment } from "./api";
 import { changeStatus } from "./api";
 import { editTaskAPI } from "./api";
 import { AssigneHomePageInfo } from "./api";
-import { error } from "console";
+import { getWorkerHomePageInfo } from "./api";
+import { getAdminHomePageAnalytics } from "./api";
+import { getAdminTasks } from "./api";
+
 
 type TaskData = {
   title: string;
@@ -42,8 +45,6 @@ export const useCreateTask = () => {
       return createTaskAPI(payload);
     },
     onSuccess: async (data) => {
-      console.log("Task created successfully:", data);
-
       const { taskId, assignee } = data;
       try {
         console.log("Task data processed successfully");
@@ -72,19 +73,12 @@ export const useEditTask = () => {
   const mutation = useMutation({
     mutationFn: (payload: EditTaskData) => {
       const { taskId, ...data } = payload;
-      console.log("Payload in mutation:::::=====::::::", payload) 
-
       const updatedFields = Object.fromEntries(
         Object.entries(data).filter(([key, value]) => value !== undefined)
       );
-
-      console.log("Filtered Payload in mutation:::::", { taskId, ...updatedFields });
-
       return editTaskAPI(taskId, updatedFields); // Call the editTaskAPI
     },
     onSuccess: async (data) => {
-      console.log("Task edited successfully:", data);
-
       try {
         console.log("Edited task data processed successfully");
       } catch (error) {
@@ -196,4 +190,49 @@ export const useGetAssigneeHomePAgeInfo = () => {
     },
   }); 
   return mutation;
+}
+export const useGetWorkerHomePageInfo = () => {
+  const mutation = useMutation({
+    mutationFn : async() =>{
+      const data = await getWorkerHomePageInfo(); 
+      return data
+    },
+    onSuccess: (data) => {
+      console.log("Worker home page data fetched successfully:", data); // Log the response data
+    },
+    onError: (error: any) => {
+      console.error("Error in fetching Worker home page data :", error); // Log the error
+    },
+  }); 
+  return mutation;
+}
+export const useAdminHomePageAnalytics = () =>{
+  const mutation = useMutation({
+    mutationFn : async() =>{
+      const data = await getAdminHomePageAnalytics(); 
+      return data
+    }, 
+    onSuccess : (data) =>{
+      console.log("Admin home page data fetched successfully:", data)
+    }, 
+    onError : (error : any) =>{
+      console.error("Error in fetching Admin home page data :", error);
+    }
+  }); 
+  return mutation;
+}
+export const useAdminTasks = () =>{
+  const mutation = useMutation({
+    mutationFn : async() => {
+      const data = await getAdminTasks(); 
+      return data
+    },
+    onSuccess: (data) => {
+      console.log("Worker home page data fetched successfully:", data); // Log the response data
+    },
+    onError: (error: any) => {
+      console.error("Error in fetching Worker home page data :", error); // Log the error
+    },
+  }); 
+  return mutation; 
 }

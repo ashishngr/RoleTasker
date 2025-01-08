@@ -5,6 +5,8 @@ import Profile from "../screens/Admin/Profile";
 import Notifications from "../screens/Admin/Notifications";
 import Tasks from "../screens/Admin/Tasks";
 import AdminNavbar from "../components/AdminBottomHeader";
+import Analytics from "../screens/Admin/Analytics";
+import { title } from "process";
 
 const AdminStack = createStackNavigator();
 
@@ -17,6 +19,7 @@ const AdminRoutes = () =>{
             <AdminStack.Screen name="AdminTasks" component={Tasks} options={{ title: 'Tasks' }} />
             <AdminStack.Screen name="AdminNotifications" component={Notifications} options={{ title: 'Notifications' }} />
             <AdminStack.Screen name="AdminProfile" component={Profile} options={{ title: 'Profile' }} />
+            <AdminStack.Screen name="AdminAnalytics" component={Analytics} options={{title : 'Analytics'}} />
         </AdminStack.Navigator>
         <AdminNavbar />
         </>

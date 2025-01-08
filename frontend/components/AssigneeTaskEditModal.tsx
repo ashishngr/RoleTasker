@@ -102,7 +102,6 @@ const AssigneeTaskEditModal: React.FC<AssigneeTaskEditModalProps> = ({
       },
       {
         onSuccess: () => {
-          console.log("Task successfully updated");
           onClose();
         },
         onError: (error) => {
@@ -119,13 +118,6 @@ const AssigneeTaskEditModal: React.FC<AssigneeTaskEditModalProps> = ({
       [field]: value,
     }));
   };
-
-
-
-  useEffect(() => {
-    console.log("task=====================================> ", task)
-  }, [])
-
   const handleWorkerChange = (selectedWorker: string) => {
     setSelectedWorkers((prevSelectedWorkers) =>
       prevSelectedWorkers.includes(selectedWorker)

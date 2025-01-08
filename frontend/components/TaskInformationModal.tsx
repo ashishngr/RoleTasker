@@ -1,46 +1,14 @@
 import React from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 
-interface Assignee {
-  userId: string;
-  email: string;
-  _id: string;
-}
-
-interface Comment {
-  _id: string;
-  content: string;
-  userId: string;
-  userName: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface TaskInformationModalProps {
-  isVisible: boolean;
-  onClose: () => void;
-  task: {
-    _id: string;
-    title: string;
-    description: string;
-    ownerId: string;
-    ownerName: string;
-    ownerEmail: string;
-    assignees: Assignee[];
-    priority: string;
-    status: string;
-    isArchived: boolean;
-    createdAt: string;
-    updatedAt: string;
-    comments: Comment[];
-  };
-}
-
-const TaskInformationModal: React.FC<TaskInformationModalProps> = ({
-  isVisible,
-  onClose,
-  task,
-}) => {
+const TaskInformationModal = ({ isVisible, onClose, task }) => {
   if (!task) return null;
 
   return (
@@ -52,46 +20,52 @@ const TaskInformationModal: React.FC<TaskInformationModalProps> = ({
     >
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>{task.title || "Task Details"}</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.closeIcon}>✖</Text>
+            </TouchableOpacity>
+          </View>
+
           <ScrollView>
-            <Text style={styles.modalTitle}>Task Details</Text>
+            {/* Highlighted Info */}
+            <View style={styles.highlightedInfo}>
+              <Text style={styles.label}>Priority:</Text>
+              <Text style={styles.value}>{task.priority || "N/A"}</Text>
 
-            {/* Task Info */}
-            <Text style={styles.label}>Title:</Text>
-            <Text style={styles.value}>{task.title}</Text>
+              <Text style={styles.label}>Status:</Text>
+              <Text style={styles.value}>{task.status || "N/A"}</Text>
 
-            <Text style={styles.label}>Description:</Text>
-            <Text style={styles.value}>{task.description}</Text>
+              <Text style={styles.label}>Due Date:</Text>
+              <Text style={styles.value}>
+                {task.deadline
+                  ? new Date(task.deadline).toLocaleDateString()
+                  : "N/A"}
+              </Text>
+            </View>
 
-            <Text style={styles.label}>Priority:</Text>
-            <Text style={styles.value}>{task.priority}</Text>
-
-            <Text style={styles.label}>Status:</Text>
-            <Text style={styles.value}>{task.status}</Text>
-
-            <Text style={styles.label}>Created At:</Text>
-            <Text style={styles.value}>{new Date(task.createdAt).toLocaleString()}</Text>
-
-            <Text style={styles.label}>Updated At:</Text>
-            <Text style={styles.value}>{new Date(task.updatedAt).toLocaleString()}</Text>
+            {/* Task Description */}
+            <Text style={styles.sectionTitle}>Description</Text>
+            <Text style={styles.value}>{task.description || "No description provided."}</Text>
 
             {/* Owner Info */}
             <Text style={styles.sectionTitle}>Owner Information</Text>
             <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>{task.ownerName}</Text>
-
+            <Text style={styles.value}>{task.ownerName || "N/A"}</Text>
             <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{task.ownerEmail}</Text>
+            <Text style={styles.value}>{task.ownerEmail || "N/A"}</Text>
 
             {/* Assignees */}
             <Text style={styles.sectionTitle}>Assignees</Text>
             {task.assignees.length > 0 ? (
               task.assignees.map((assignee) => (
-                <View key={assignee._id} style={styles.assigneeContainer}>
-                  <Text style={styles.value}>- {assignee.email}</Text>
-                </View>
+                <Text key={assignee._id} style={styles.value}>
+                  - {assignee.email}
+                </Text>
               ))
             ) : (
-              <Text style={styles.value}>No assignees.</Text>
+              <Text style={styles.value}>No assignees assigned.</Text>
             )}
 
             {/* Comments */}
@@ -100,18 +74,18 @@ const TaskInformationModal: React.FC<TaskInformationModalProps> = ({
               task.comments.map((comment) => (
                 <View key={comment._id} style={styles.commentContainer}>
                   <Text style={styles.commentUser}>
-                    {comment.userName} ({new Date(comment.createdAt).toLocaleString()}):
+                    {comment.userName} (
+                    {comment.createdAt
+                      ? new Date(comment.createdAt).toLocaleString()
+                      : "No date available"}
+                    ):
                   </Text>
                   <Text style={styles.commentContent}>{comment.content}</Text>
                 </View>
               ))
             ) : (
-              <Text style={styles.value}>No comments.</Text>
+              <Text style={styles.value}>No comments yet.</Text>
             )}
-
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
           </ScrollView>
         </View>
       </View>
@@ -129,13 +103,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     marginHorizontal: 20,
     borderRadius: 10,
-    padding: 20,
+    padding: 15,
     maxHeight: "80%",
   },
-  modalTitle: {
-    fontSize: 22,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    paddingBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+  },
+  closeIcon: {
+    fontSize: 20,
+    color: "#ff5c5c",
+  },
+  highlightedInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
   },
   sectionTitle: {
     fontSize: 18,
@@ -146,14 +137,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "bold",
-    marginTop: 10,
   },
   value: {
     fontSize: 16,
-    marginBottom: 5,
-  },
-  assigneeContainer: {
-    marginBottom: 5,
+    marginBottom: 10,
   },
   commentContainer: {
     marginBottom: 10,
@@ -165,18 +152,6 @@ const styles = StyleSheet.create({
   commentContent: {
     fontSize: 14,
     marginLeft: 10,
-  },
-  closeButton: {
-    marginTop: 20,
-    alignSelf: "center",
-    backgroundColor: "#007BFF",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 16,
   },
 });
 

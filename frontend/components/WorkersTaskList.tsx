@@ -61,10 +61,9 @@ const WorkersTaskList: React.FC = () => {
     const {mutate : addComment} = useAddComment(); 
     const { mutate: updateTaskStatus } = useChangeStatus();
 
-    const openTaskInfoMadal = async(taskId : string) =>{
+    const openTaskInfoModal = async(taskId : string) =>{
         try {
             const response = await getTaskWithComment({ taskId });
-            console.log("Task info fetched successfully: ", response);
     
             if (response) {
                 setTaskInfo(response);
@@ -91,7 +90,6 @@ const WorkersTaskList: React.FC = () => {
     }
     
     const handleAddComment = (comment: string) => {
-        console.log(`Adding comment to task ${selectedTaskId}: ${comment}`);
         // Here, make an API call or update the state to save the comment
         const payload = {
             taskId : selectedTaskId, 
@@ -99,7 +97,6 @@ const WorkersTaskList: React.FC = () => {
         }; 
         addComment(payload, {
             onSuccess : (newComment) => {
-                console.log("New Comment", newComment)
                 setModalVisible(false);
             }, 
             onError : (error)=>{
@@ -122,9 +119,7 @@ const WorkersTaskList: React.FC = () => {
 
         try {
             const response = await getAllWorkersTasks(activeFilters);
-            console.log("---------------Response of workers taks list-------------------", response)
             setTasks(response?.data);
-            console.log("Response of tasks((((((((((((((((()))))))))))))))))))))", response?.data)
         } catch (error) {
             console.error('Failed to fetch tasks:', error);
         } finally {
@@ -137,7 +132,6 @@ const WorkersTaskList: React.FC = () => {
     }, [sortBy, priorityFilter, statusFilter, dayFilter]);
 
     const handleSearch = async (search: string) => {
-        console.log("&&&&&&&&&&{{{{{{{********************************************************}}}}}}}}}}}}}}", search)
         setSearchText(search);
         await fetchTasks(searchText);
     };
@@ -154,17 +148,13 @@ const WorkersTaskList: React.FC = () => {
                 task.id === taskId ? { ...task, status: newStatus } : task
             )
         );
-        console.log(`Status for task --------------->>>>>>>>>>>>><<<<<<<<<<<<---------------${taskId} updated to: ${newStatus}`);
         // Add any additional logic here (e.g., API call to save updated status)
         const payload :statusPayload = {
             taskId : taskId, 
             status : newStatus
         }; 
-        console.log("Payload-->+++++++++", payload)
-
         updateTaskStatus(payload, {
             onSuccess: () => {
-                console.log(`Status for task ${taskId} successfully updated to: ${newStatus}`);
                 fetchTasks();
             },
             onError: (error) => {
@@ -206,7 +196,7 @@ const WorkersTaskList: React.FC = () => {
                     </Picker>
                 </View>
                 <View style={styles.iconsContainer}>
-                    <TouchableOpacity onPress={() => openTaskInfoMadal(item._id)}>
+                    <TouchableOpacity onPress={() => openTaskInfoModal(item._id)}>
                         <Ionicons name="eye" size={24} color="#007BFF" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => openCommentModal(item._id)}>
@@ -230,9 +220,7 @@ const WorkersTaskList: React.FC = () => {
                 return '#888';
         }
     };
-    useEffect(() => {
-        console.log("Task IDs::::::::::::::::::::::::", tasks.map(task => task._id));
-    }, [tasks]);
+
 
     return (
         <View style={styles.container}>

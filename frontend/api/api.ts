@@ -34,7 +34,7 @@ export interface AllTasks {
     _id: string; // Unique identifier for the assignee relation (if needed)
   }[];
   priority: "High" | "Medium" | "Low";
-  status: "Done" | "In Progress" | "Backlog" | "Archived";
+  status: "Done" | "In Progress" | "Backlog" | "Archived" ;
 }
 export interface commentPayload {
   taskId: string;
@@ -162,6 +162,82 @@ interface AssigneeHomePageInformation {
   latestTasks: Task[];
   overdueTasks: Task[];
 }
+interface WorkerHomePageInformation {
+  inProgressCount : number; 
+  doneCount : number; 
+  overdueCount : number; 
+  taskCloseToDueDate : Task[]; 
+  recentOverdueTasks: Task[];
+}
+// Admin intefaces 
+interface AdminHomePageAnalytics {
+  activeUsers : number, 
+  workers : number, 
+  assigners : number, 
+  totalTasks : number, 
+  doneTasks : number, 
+  inProgressTasks : number, 
+  overdueTasks : number, 
+  deletedTasks : number, 
+  archivedTask : number, 
+}
+export interface AdminTasks {
+  _id: string; // The unique task ID from MongoDB
+  title: string;
+  description: string;
+  ownerName: string;
+  ownerEmail: string,
+  assignees: {
+    userId: string;
+    email: string;
+    _id: string; // Unique identifier for the assignee relation (if needed)
+  }[];
+  priority: "High" | "Medium" | "Low";
+  status: "Done" | "In Progress" | "Backlog" | "Archived" ; 
+  isArchived : string, 
+  deadline : string
+}
+
+export interface performer {
+  bestPerformer : {
+    userId : string, 
+    email : string, 
+    totalTasks : number, 
+    doneTasks : number, 
+    inProgressTasks: number, 
+    taskPercentage: number
+  }, 
+  worstPerformer : {
+    userId : string, 
+    email : string, 
+    totalTasks : number, 
+    doneTasks : number, 
+    inProgressTasks: number, 
+    taskPercentage: number
+  }
+};
+export interface AdminAnalytics {
+  tasksByStatus: {
+    _id: string; 
+    count: number; 
+  }[];
+  tasksByPriority: {
+    _id: string; 
+    count: number; 
+  }[];
+  tasksByWorker: {
+    userId: string; 
+    email: string; 
+    count: number; 
+  }[];
+  tasksByCreator: {
+    userId: string; 
+    ownerName: string; 
+    ownerEmail: string; 
+    count: number; 
+  }[];
+  archivedTask: number; 
+} 
 
 // Mutations for signUp and signIn
 export const signUpApi = async (payload: SignUpPayload) => {
@@ -230,7 +306,6 @@ export const getAllTasks = async (params?: Record<string, any>) => {
     const queryString = params
       ? "?" + new URLSearchParams(params).toString()
       : "";
-    console.log("queryString", queryString);
     const response = await apiCall<{
       message: String;
       tasks: AllTasks[];
@@ -246,12 +321,10 @@ export const getAllWorkersTasks = async (params?: Record<string, any>) => {
     const queryString = params
       ? "?" + new URLSearchParams(params).toString()
       : "";
-    console.log("queryString------------------->--", queryString);
     const response = await apiCall<{
       message: String;
       tasks: AllTasks[];
     }>(`/api/v1/getWorkerTasks${queryString}`, "GET");
-    console.log("Response : Get all tasks=============>", response);
     return response;
   } catch (error) {
     console.error("Error fetching workers:", error);
@@ -265,7 +338,6 @@ export const addComment = async (payload: commentPayload) => {
       "POST",
       payload
     );
-    console.log("Response -------------?????????????-----------", response);
     return response;
   } catch (error) {
     console.error("Error fetching workers:", error);
@@ -279,12 +351,10 @@ export const getTaskWithComment = async (params?: { taskId: string }) => {
     }
     const { taskId } = params;
     const endpoint = `/api/v1/task/${taskId}`;
-    console.log("Fetching endpoint:", endpoint);
     const response = await apiCall<{
       message: String;
       tasks: AllTasks[];
     }>(endpoint, "GET");
-    console.log("Response : Get tasks", response?.data);
     return response;
   } catch (error) {
     console.error("Error fetching task with comment:", error);
@@ -294,15 +364,10 @@ export const getTaskWithComment = async (params?: { taskId: string }) => {
 export const changeStatus = async (payload: statusPayload) => {
   try {
     const { taskId, status } = payload;
-    console.log("TaskId", taskId);
-    console.log("status", status);
-
     const endpoint = `/api/v1/task/${taskId}/status`;
-    console.log("Fetching endpoint:", endpoint);
     const response = await apiCall<{
       message: string;
-    }>(endpoint, "PUT", status);
-    console.log("Status change response:", response);
+    }>(endpoint, "PUT", {status});
     return response;
   } catch (error) {
     console.error("Error changing task status:::", error);
@@ -316,8 +381,6 @@ export const getAssigneeAnalyticsData = async (
     const queryString = params
       ? "?" + new URLSearchParams(params).toString()
       : "";
-    console.log("queryString=============>", queryString);
-
     const response = await apiCall<AnalyticsAPIResponse>(
       `/api/v1/task/analytics${queryString}`,
       "GET"
@@ -334,7 +397,6 @@ export const getWorkerAnalyticsData = async (params?: Record<string, any>) => {
     const queryString = params
       ? "?" + new URLSearchParams(params).toString()
       : "";
-    console.log("queryString=============>", queryString);
     const response = await apiCall<WorkerAnalyticsAPIResponse>(
       `/api/v1/worker/analytics${queryString}`,
       "GET"
@@ -357,3 +419,79 @@ export const AssigneHomePageInfo = async () => {
     throw error;
   }
 };
+export const getWorkerHomePageInfo = async() => {
+  try {
+    const response = await apiCall<WorkerHomePageInformation>(
+      "/api/v1/worker/info", 
+      "GET"
+    ); 
+    return response
+  } catch (error) {
+    console.error("Error fetching analytics data:", error);
+    throw error;
+  }
+}
+export const getAdminHomePageAnalytics = async () =>{
+  try {
+    const response = await apiCall<AdminHomePageAnalytics>(
+      "/api/v1/admin/home/analytics", 
+      "GET"
+    ); 
+    return response; 
+  } catch (error) {
+    console.error("Error fetching analytics data:", error);
+    throw error;
+  }
+}
+export const getAdminTasks = async(params?: Record<string, any>) =>{
+  try {
+    const queryString = params
+      ? "?" + new URLSearchParams(params).toString()
+      : "";
+      console.log("Admin Query Paprams", queryString)
+      const response = await apiCall<AdminTasks>(
+        `/api/v1/admin/task${queryString}`,
+        "GET"
+      ); 
+      return response
+  } catch (error) {
+    console.error("Error fetching analytics data:", error);
+    throw error;
+  }
+}
+export const adminStaticData = async() =>{
+ try {
+  const response = await apiCall<AdminHomePageAnalytics>(
+    "/api/v1/admin/staticAnalytic", 
+    "GET"
+  ); 
+  return response; 
+ } catch (error) {
+  console.error("Error fetching analytics data:", error);
+    throw error;
+ }
+}
+export const getPerformerData = async() => {
+  try {
+    const response = await apiCall<performer>(
+      "/api/v1/admin/performaceMetrics", 
+      "GET"
+    ); 
+    return response; 
+  } catch (error) {
+    console.error("Error fetching analytics data:", error);
+    throw error;
+  }
+}
+export const getAdminAnalyticsData = async() =>{
+  try {
+    const response = await apiCall<AnalyticsData>(
+      "/api/v1/admin/analyticsData", 
+      "GET"
+    ); 
+    return response; 
+  } catch (error) {
+    console.error("Error fetching analytics data:", error);
+    throw error;
+  }
+}
