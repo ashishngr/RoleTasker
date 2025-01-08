@@ -103,8 +103,6 @@ TaskController.getAllTasks = async(req, res) =>{
     // Retrieve filters from the request query
     const { sortBy, priority, status, createdAt, search } = req.query; 
 
-    console.log("req.query^^^^^^^^^^^^^^^^^^^^", req.query); 
-
     // Construct the match conditions for the query
     const matchConditions = { ownerId: new mongoose.Types.ObjectId(userId) };
 

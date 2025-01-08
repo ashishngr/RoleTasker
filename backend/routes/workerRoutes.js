@@ -12,5 +12,6 @@ router.post("/comment", validateToken, WorkerController.addComment);
 router.get("/task/:taskId", validateToken, WorkerController.getTaskInfo); 
 router.put("/task/:taskId/status", validateToken, WorkerController.updateStatus); 
 router.get("/worker/analytics", validateToken, WorkerController.getWorkerAnalytics); 
+router.get("/worker/info", validateToken, WorkerController.getHomePageInfo); 
 
 module.exports = router; 
